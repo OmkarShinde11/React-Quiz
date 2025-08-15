@@ -1,4 +1,3 @@
-import { useEffect, useReducer } from 'react';
 import '../index.css'
 import Header from './Header';
 import Main from './Main';
@@ -10,73 +9,82 @@ import Footer from './Footer';
 import NextButton from './NextButton';
 import Progress from './Progress';
 import FinishScreen from './FinishScreen';
+import Timer from './Timer';
+import { useQuiz } from '../Context/QuizContext';
 
-const initialState={questions:[],status:'loading',index:0,answer:null,points:0};
-function reducer(state,action){
-  switch(action.type){
-    case 'getQuestions':
-      return {...state,questions:action.payload,status:'ready'};
-    case 'handleError':
-      return {...state,questions:[],status:'error'};
-    case 'startQuiz':
-      return {...state,status:'active'};
-    case 'setAnswer':
-      return {...state,
-        answer:action.payload.answer,
-        points:state.points+action.payload.points,
-      };
-    case 'nextQuestion':
-      return {
-        ...state,index:state.index+1,answer:null
-      }
-    case 'Finish':
-      return {
-        ...state,status:'Finish',
-      }
-    case 'restart':
-      return {
-        ...initialState,questions:state.questions,status:'ready',answer:null,index:0,points:0
-      }
-  }
-}
+// const initialState={questions:[],status:'loading',index:0,answer:null,points:0,secondsRemainign:null};
+// const SecondPerQuestion=30;
+// function reducer(state,action){
+//   switch(action.type){
+//     case 'getQuestions':
+//       return {...state,questions:action.payload,status:'ready',secondsRemainign:state.questions.length * SecondPerQuestion};
+//     case 'handleError':
+//       return {...state,questions:[],status:'error'};
+//     case 'startQuiz':
+//       return {...state,status:'active'};
+//     case 'setAnswer':
+//       return {...state,
+//         answer:action.payload.answer,
+//         points:state.points+action.payload.points,
+//       };
+//     case 'nextQuestion':
+//       return {
+//         ...state,index:state.index+1,answer:null
+//       }
+//     case 'Finish':
+//       return {
+//         ...state,status:'Finish',
+//       }
+//     case 'restart':
+//       return {
+//         ...initialState,questions:state.questions,status:'ready',answer:null,index:0,points:0
+//       }
+//     case 'timerStart':
+//       return {
+//         ...state,secondsRemainign:state.secondsRemainign-1,status:state.secondsRemainign===0 ? 'Finish':state.status,
+//       }
+//   }
+// }
 
 function App() {
-  const [state,dispatch]=useReducer(reducer,initialState);
-  const {questions,status,index,answer,points}=state;
-  useEffect(()=>{
-    fetchQuestions();
-  },[]);
+  // const [state,dispatch]=useReducer(reducer,initialState);
+  // const {questions,status,index,answer,points,secondsRemainign}=state;
+  // useEffect(()=>{
+  //   fetchQuestions();
+  // },[]);
 
-  const numOfQuestions=questions.length;
-  const totalPossiblePoints=questions.reduce((acc,curr)=>acc+curr.points,0);
-  async function fetchQuestions(){
-    try{
-      const res=await fetch(`http://localhost:9000/questions`);
-      const questions=await res.json();
-      console.log(questions);
-      dispatch({type:'getQuestions',payload:questions});
-    }catch(err){
-      console.log(err);
-      dispatch({type:'handleError'})
-    }
-  }
+  // const numOfQuestions=questions.length;
+  // const totalPossiblePoints=questions.reduce((acc,curr)=>acc+curr.points,0);
+  // async function fetchQuestions(){
+  //   try{
+  //     const res=await fetch(`http://localhost:9000/questions`);
+  //     const questions=await res.json();
+  //     console.log(questions);
+  //     dispatch({type:'getQuestions',payload:questions});
+  //   }catch(err){
+  //     console.log(err);
+  //     dispatch({type:'handleError'})
+  //   }
+  // }
+  const {status}=useQuiz();
   return (
     <div className='app'>
       <Header/>
       <Main>
         {status==='error' && <Error/>}
         {status==='loading' && <Loader/>}
-        {status==='ready' && <StartScreen numOfQuestions={numOfQuestions} dispatch={dispatch}/>}
+        {status==='ready' && <StartScreen />}
         {status==='active' && 
         <>
-        <Progress totalPossiblePoints={totalPossiblePoints} answer={answer} numOfQuestions={numOfQuestions} index={index} points={points} />
-        <Question question={questions[index]} dispatch={dispatch} answer={answer}/>
+        <Progress/>
+        <Question/>
         <Footer>
-          <NextButton dispatch={dispatch} numOfQuestions={numOfQuestions} index={index}/>
+          <Timer></Timer>
+          <NextButton/>
         </Footer>
         </>
         }
-        {status==='Finish' && <FinishScreen points={points} totalPossiblePoints={totalPossiblePoints} dispatch={dispatch}/> }
+        {status==='Finish' && <FinishScreen /> }
       </Main>
     </div>
   );

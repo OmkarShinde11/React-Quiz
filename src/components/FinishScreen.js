@@ -1,4 +1,7 @@
-function FinishScreen({points,totalPossiblePoints,dispatch}){
+import { useQuiz } from "../Context/QuizContext";
+
+function FinishScreen(){
+    const {points,totalPossiblePoints,dispatch}=useQuiz();
     const percentage=Math.ceil((points/totalPossiblePoints)*100);
     return (
         <>

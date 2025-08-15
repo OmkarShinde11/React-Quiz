@@ -1,4 +1,7 @@
-function Options({question,dispatch,answer}){
+import { useQuiz } from "../Context/QuizContext";
+
+function Options({question}){
+    const {dispatch,answer}=useQuiz();
     const hasAnswered = answer !== null;
     function handleSubmission(index){
         const passPoints=index===question.correctOption ? true:false;
